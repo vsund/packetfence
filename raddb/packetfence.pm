@@ -155,6 +155,7 @@ sub post_auth {
 
             # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
             my $attributes = {@$elements};
+            my $radcheck = delete $attributes->{RAD_CHECK} || {};
 
             # If attribute is a reference to a HASH (Multivalue attribute) we overwrite the value and point to list reference
             # 'Cisco-AVPair',
@@ -173,6 +174,7 @@ sub post_auth {
                }
             }
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
+            %RAD_CHECK = (%RAD_CHECK, %$radcheck); # the
         } else {
             $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
             return server_error_handler();
@@ -304,7 +306,7 @@ sub authenticate {
     # For debugging purposes only
     # &log_request_attributes;
     # We only increment a counter to know how often this has been called.
-    $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );                                         
+    $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );
     return $RADIUS::RLM_MODULE_NOOP;
 
 }
