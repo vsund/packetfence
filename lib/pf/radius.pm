@@ -714,6 +714,15 @@ sub logger {
     return get_logger( ref($proto) || $proto );
 }
 
+=item _addRadiusAudit
+
+=cut
+
+sub _addRadiusAudit {
+    my ($self) = @_;
+    return (RADIUS_AUDIT => $self->stash->{RADIUS_AUDIT});
+}
+
 =back
 
 =head1 AUTHOR
