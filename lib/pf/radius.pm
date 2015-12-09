@@ -256,7 +256,7 @@ sub authorize {
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
-    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
+    $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
     # cleanup
