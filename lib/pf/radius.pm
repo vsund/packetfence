@@ -718,6 +718,7 @@ our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
     status => 'PacketFence-Status',
     source => 'PacketFence-Source',
     portal => 'PacketFence-Profile',
+    computername => 'PacketFence-Computer-Name',
 );
 
 our %SWITCH_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
