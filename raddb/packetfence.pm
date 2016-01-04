@@ -160,6 +160,7 @@ sub post_auth {
 
             # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
             my $attributes = {@$elements};
+            my $radius_audit = delete $attributes->{RADIUS_AUDIT} || {};
 
             # If attribute is a reference to a HASH (Multivalue attribute) we overwrite the value and point to list reference
             # 'Cisco-AVPair',
@@ -177,7 +178,8 @@ sub post_auth {
                    $attributes->{$key} = $attributes->{$key}->{'item'};
                }
             }
-            %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
+            %RAD_REPLY = (%RAD_REPLY, %$attributes); # The rest of result is the reply hash passed by the radius_authorize
+            %RAD_CHECK = (%RAD_CHECK, %$radius_audit); # Add the radius audit data to RAD_CHECK
         } else {
             $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
             return server_error_handler();
@@ -206,6 +208,7 @@ sub post_auth {
         # use Data::Dumper;
         # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
         # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
+        # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE CHECK: ". Dumper(\%RAD_CHECK));
     };
     if ($@) {
         &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize RPC request: $@");
@@ -309,7 +312,7 @@ sub authenticate {
     # For debugging purposes only
     # &log_request_attributes;
     # We only increment a counter to know how often this has been called.
-    $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );                                         
+    $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );
     return $RADIUS::RLM_MODULE_NOOP;
 
 }
