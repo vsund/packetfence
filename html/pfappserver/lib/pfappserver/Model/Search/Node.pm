@@ -275,6 +275,30 @@ my %COLUMN_MAP = (
             }
         ]
     },
+    violation_status   => {
+        table => 'violation',
+        name  => 'status',
+        joins => [
+            {
+                'table'  => 'violation',
+                'join' => 'LEFT',
+                'on' =>
+                [
+                    [
+                        {
+                            'table' => 'violation',
+                            'name'  => 'mac',
+                        },
+                        '=',
+                        {
+                            'table' => 'node',
+                            'name'  => 'mac',
+                        }
+                    ],
+                ],
+            },
+        ]
+    },
 );
 
 sub add_order_by {
