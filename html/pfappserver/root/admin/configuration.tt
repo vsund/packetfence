@@ -181,6 +181,9 @@ table.sources {
               [% list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendor') | none %]
               [% list_entry('Config::Fingerbank::User_Agent', 'index', 'User Agent') | none %]
               [%- END %]
+              [%- IF can_access("PFITEMCONFIG_READ") %]
+              [% list_entry('Config::PfItemConfig', 'index', 'PfItemConfig Entries') %]
+              [%- END %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

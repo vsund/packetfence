@@ -49,6 +49,7 @@ conf/dhcp_filters.conf
 conf/monitoring/*
 !conf/monitoring/*.example
 conf/nessus/remotescan.nessus
+conf/pfitemconfig.conf
 conf/networks.conf
 conf/radiusd/eap.conf
 conf/radiusd/radiusd.conf
