@@ -414,6 +414,16 @@ radiusd=enabled
 # Order in which to start this service 
 radiusd_order=12
 #
+# services.ipset
+#
+# Should ipset be managed by PacketFence?
+ipset=enabled
+#
+# services.ipset_order
+#
+# Order in which to start this server
+ipset_order=04
+#
 # services.iptables
 #
 # Should iptables be managed by PacketFence?
@@ -730,6 +740,11 @@ radsniff_binary=/usr/bin/radsniff
 # 
 # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
 p0f_binary=/usr/local/bin/p0f
+# 
+# services.ipset_binary
+# 
+# location of the ipset binary. only necessary to change if you are not running the rpmed version.
+ipset_binary=/usr/sbin/ipset
 # 
 # services.iptables_binary
 # 

@@ -1,14 +1,14 @@
-package pf::services::manager::iptables;
+package pf::services::manager::ipset;
 
 =head1 NAME
 
-pf::services::manager::iptables
+pf::services::manager::ipset
 
 =cut
 
 =head1 DESCRIPTION
 
-Service manager for iptables
+Service manager for ipset
 
 =cut
 
@@ -16,11 +16,11 @@ use Moo;
 
 extends 'pf::services::manager';
 
-has '+name' => ( default => sub { 'iptables' } );
+has '+name' => ( default => sub { 'ipset' } );
 
 has '+shouldCheckup' => ( default => sub { 1 } );
 
-has '+launcher' => ( default => sub { "iptables" } );
+has '+launcher' => ( default => sub { "ipset" } );
 
 has '+dependsOnServices' => ( is => 'ro', default => sub { [] } );
 
@@ -29,23 +29,23 @@ has 'runningServices' => ( is => 'rw', default => sub { 0 } );
 
 =head2 startService
 
-"Start" iptables by generating rules
+"Start" ipset by generating sets
 
 =cut
 
 sub startService {
     my ( $self ) = @_;
 
-    # Saving existing system rules
-    pf::iptables::save() unless ($self->runningServices);
+    # Saving existing system sets
+    pf::ipset::save() unless ($self->runningServices);
 
-    # Flushing currently configured rules
-    pf::iptables::flush();
+    # Flushing currently configured sets
+    pf::ipset::flush();
 
-    # Generating and applying PacketFence rules
-    pf::iptables::restore(pf::iptables::generate());
+    # Generating and applying PacketFence sets
+    pf::ipset::restore(pf::ipset::generate());
 
-    # Since iptables is not a running service, it doesn't have a PID associated to it.
+    # Since ipset is not a running service, it doesn't have a PID associated to it.
     # We use -1 as a PID for theses kind of "services"
     open (my $fh, '>>' . $self->pidFile);
     print $fh "-1";
@@ -56,18 +56,18 @@ sub startService {
 
 =head2 stop
 
-"Stop" iptables by flushing rules
+"Stop" ipset by flushing sets
 
 =cut
 
 sub stop {
     my ( $self ) = @_;
 
-    # Flushing PacketFence rules
-    pf::iptables::flush();
+    # Flushing PacketFence sets
+    pf::ipset::flush();
 
-    # Restoring previously configured (system?) rules
-    pf::iptables::restore();
+    # Restoring previously configured (system?) sets
+    pf::ipset::restore();
 
     unlink $self->pidFile;
 
@@ -76,8 +76,8 @@ sub stop {
 
 =head2 isAlive
 
-Check if iptables is "alive"
-Since it is never really stopped then we check if rules are defined and if the fake PID exists
+Check if ipset is "alive"
+Since it is never really stopped then we check if sets are defined and if the fake PID exists
 
 =cut
 
@@ -85,7 +85,7 @@ sub isAlive {
     my ( $self, $pid ) = @_;
 
     $pid = $self->pid;
-    my $running = pf::iptables::check();
+    my $running = pf::ipset::check();
 
     return ( defined($pid) && $running );
 }
