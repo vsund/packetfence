@@ -577,6 +577,7 @@ sub getNodeInfoForAutoReg {
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
     if ($args->{'isPhone'}) {
         $node_info{'voip'} = $VOIP;
+        $node_info{'category'} = 'VoIP';
     }
 
     # under 802.1X EAP, we trust the username provided since it authenticated
