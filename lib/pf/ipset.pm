@@ -44,9 +44,10 @@ use pf::iplog;
 use pf::authentication;
 use pf::constants::parking qw($PARKING_IPSET_NAME);
 
-Readonly our $SET_PASSTHROUGHS  => 'PF_passthroughs';
-Readonly our $SET_PORTAL_DENY   => 'PF_portal_deny';
-Readonly our $SET_STATUS_CHECK  => 'PF_status_check';
+Readonly our $SET_PASSTHROUGHS      => 'PF_passthroughs';
+Readonly our $SET_PORTAL_DENY       => 'PF_portal_deny';
+Readonly our $SET_PORTAL_PARKING    => 'PF_portal_parking';
+Readonly our $SET_STATUS_CHECK      => 'PF_status_check';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -113,6 +114,7 @@ sub generate {
     # Static sets variables
     $sets{'SET_STATUS_CHECK'}   .= $SET_STATUS_CHECK;
     $sets{'SET_PORTAL_DENY'}    .= $SET_PORTAL_DENY;
+    $sets{'SET_PORTAL_PARKING'} .= $SET_PORTAL_PARKING;
     $sets{'SET_PASSTHROUGHS'}   .= $SET_PASSTHROUGHS;
 
     # Inline enforcement technique specific sets
