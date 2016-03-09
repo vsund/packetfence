@@ -95,10 +95,10 @@ sub authorize {
     }
 
 
-    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $acct_type) = $switch->parseRequest($radius_request);
     Log::Log4perl::MDC->put( 'mac', $mac );
     my $connection = pf::Connection->new;
-    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $acct_type);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
     # switch-specific information retrieval
@@ -297,7 +297,7 @@ sub accounting {
     my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
     if ($isStop || $isUpdate) {
-        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $acct_type) = $switch->parseRequest($radius_request);
 
         my $connection = pf::Connection->new;
         $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
@@ -364,9 +364,9 @@ sub update_locationlog_accounting {
     }
 
     if ($switch->supportsRoamingAccounting()) {
-        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $acct_type) = $switch->parseRequest($radius_request);
         my $connection = pf::Connection->new;
-        $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+        $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $acct_type);
         my $connection_type = $connection->attributesToBackwardCompatible;
         my $connection_sub_type = $connection->subType;
         my $ssid;

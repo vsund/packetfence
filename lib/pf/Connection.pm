@@ -16,7 +16,7 @@ has 'isMacAuth'     => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAu
 has 'is8021X'       => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
 has '8021XAuth'     => (is => 'rw', isa => 'Str');                  # Authentication used for 8021X connection
 has 'enforcement'   => (is => 'rw', isa => 'Str');                  # PacketFence enforcement technique
-
+has 'isAccounting'  => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoAccounting | 1: Accounting
 
 our $logger = get_logger();
 
@@ -42,6 +42,10 @@ sub _attributesToString {
     if ( $self->isMacAuth ) {
         $type .= "-MacAuth";
         $type .= ( $self->isEAP ) ? "-EAP" : "-NoEAP";
+    }
+
+    if ( $self->isAccounting ) {
+        $type .= "-Accounting";
     }
 
     # Handling 802.1X
@@ -74,6 +78,9 @@ sub _stringToAttributes {
 
     # We check if 802.1X
     ( lc($type) =~ /^8021x/ ) ? $self->is8021X($TRUE) : $self->is8021X($FALSE);
+
+    # We check if Accounting
+    ( lc($type) =~ /^accounting/ ) ? $self->isAccounting($TRUE) : $self->isAccounting($FALSE);
 }
 
 =head2 attributesToBackwardCompatible
@@ -97,6 +104,12 @@ sub attributesToBackwardCompatible {
     # Wired 802.1X
     return $WIRED_802_1X if ( (lc($self->transport) eq "wired") && ($self->is8021X) );
 
+    # Wired Accounting
+    return $ACCOUNTING_WIRED if ( (lc($self->transport) eq "wired") && ($self->isAccounting) );
+
+    # Wireless Accounting
+    return $ACCOUNTING_WIRELESS if ( (lc($self->transport) eq "wireless") && ($self->isAccounting) );
+
     # Default
     return;
 }
@@ -106,7 +119,7 @@ sub attributesToBackwardCompatible {
 =cut
 
 sub identifyType {
-    my ( $self, $nas_port_type, $eap_type, $mac, $user_name, $switch ) = @_;
+    my ( $self, $nas_port_type, $eap_type, $mac, $user_name, $switch, $acct_type ) = @_;
 
     # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
     # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
@@ -135,9 +148,13 @@ sub identifyType {
         $mac =~ s/[^[:xdigit:]]//g;
         ( lc($mac) eq lc($user_name) ) ? $self->isMacAuth($TRUE) : $self->is8021X($TRUE);
     }
-    # We can safely assume that every NoEAP connection in a RADIUS context is a mac authentication connection
+    # We can safely assume that every NoEAP connection in a RADIUS context is a mac authentication or accounting connection
     else {
-        $self->isMacAuth($TRUE);
+        if ( defined($acct_type) ) {
+            $self->isAccounting($TRUE);
+        } else {
+            $self->isMacAuth($TRUE);
+        }
     }
 
     # Override connection type using custom switch module

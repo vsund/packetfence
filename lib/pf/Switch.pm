@@ -2953,8 +2953,9 @@ sub parseRequest {
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+    my $acct_type       = ( defined($radius_request->{'Acct-Status-Type'}) ? $radius_request->{'Acct-Status-Type'} : undef );
 
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $acct_type);
 }
 
 =item parseUrl
