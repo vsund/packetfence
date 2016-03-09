@@ -346,8 +346,8 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $WIRED_SNMP_TRAPS => 'SNMP-Traps',
     $INLINE => 'Inline',
     $UNKNOWN => '',
-    $ACCOUNTING_WIRED => 'Wireless-Accounting',
-    $ACCOUNTING_WIRELESS => 'Wired-Accounting',
+    $ACCOUNTING_WIRELESS => 'Wireless-Accounting',
+    $ACCOUNTING_WIRED => 'Wired-Accounting',
 );
 %connection_group_to_str = (
     $WIRELESS => 'Wireless',
