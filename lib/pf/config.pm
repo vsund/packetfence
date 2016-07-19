@@ -139,6 +139,8 @@ our (
     %ConfigReport,
 #Roles
     %ConfigRoles,
+#RadiusRemote
+    %ConfigRadiusRemote,
 );
 
 BEGIN {
@@ -197,6 +199,7 @@ BEGIN {
         %ConfigSwitchesList
         %ConfigReport
         %ConfigRoles
+        %ConfigRadiusRemote
     );
 }
 
@@ -280,6 +283,7 @@ tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
 tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
 
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
+tie %ConfigRadiusRemote, 'pfconfig::cached_hash', 'config::RadiusRemote';
 
 $thread = 0;
 

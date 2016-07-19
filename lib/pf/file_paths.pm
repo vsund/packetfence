@@ -97,6 +97,7 @@ our (
     $switch_control_dir,
     $pfmon_config_file, $pfmon_default_config_file,
     $switch_filters_config_file,
+    $radius_remote_config_file,
 );
 
 BEGIN {
@@ -168,6 +169,7 @@ BEGIN {
         $switch_control_dir
         $pfmon_config_file $pfmon_default_config_file
         $switch_filters_config_file
+        $radius_remote_config_file
     );
 }
 
@@ -261,6 +263,7 @@ $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.def
 $pfmon_config_file = catfile($conf_dir,"pfmon.conf");
 $pfmon_default_config_file = catfile($conf_dir,"pfmon.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
+$radius_remote_config_file = catfile($conf_dir,"radius_remote.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
