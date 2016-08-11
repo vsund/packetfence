@@ -23,6 +23,10 @@ use pf::util;
 use Moose;
 extends 'pf::Authentication::Source';
 
+BEGIN {
+    Lasso::init();
+}
+
 has '+type' => ( default => 'SAML' );
 has 'authorization_source_id' => ( is => 'rw', required => 1 );
 
@@ -99,7 +103,6 @@ sub lasso_server {
 
     my $server;
     eval {
-        Lasso::init();
         my ($fh, $sp_metadata_path) = tempfile();
         write_file($sp_metadata_path, $self->generate_sp_metadata());
         $server = Lasso::Server->new($sp_metadata_path, $self->sp_key_path, undef, $self->sp_cert_path);
@@ -110,7 +113,7 @@ sub lasso_server {
             die $@;
         }
         else {
-            die "Failed to instantiate server";
+            die "Failed to instantiate server : $@";
         }
     }
     return $server;
@@ -155,6 +158,7 @@ sub sso_url {
             die "Can't create Single-Sign-On URL : ".$@->{message}."\n";
         }
         else {
+            get_logger->error($@);
             die "Can't create Single-Sign-On URL. Check server side logs for details and validate the SAML configuration.";
         }
     }
