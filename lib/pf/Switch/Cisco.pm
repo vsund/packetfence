@@ -1613,6 +1613,29 @@ sub returnAuthorizeRead {
     return [$status, %$radius_reply_ref];
 }
 
+=item acctVoipDetect
+
+Extract the cdp/lldp capabilitie from the radius accounting attribute.
+
+=cut
+
+sub acctVoipDetect {
+    my ( $self, $radius_request) = @_;
+    return;
+}
+
+
+=item acctFingerprint
+
+Extract fingerprint information from radius accounting attributes.
+
+=cut
+
+sub acctFingerprint {
+    my ( $self, $radius_request) = @_;
+    return;
+}
+
 =back
 
 =head1 AUTHOR
