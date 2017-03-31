@@ -82,14 +82,13 @@ sub get_technique {
 =cut
 
 sub performInlineEnforcement {
-    my ($self, $mac) = @_;
+    my ($self, $mac, $radius) = @_;
     my $logger = get_logger(ref($self));
 
     # What is the MAC's current state?
     my $current_mark = $self->{_technique}->get_mangle_mark_for_mac($mac);
     my $should_be_mark = $self->fetchMarkForNode($mac);
-
-    if ($current_mark == $should_be_mark) {
+    if (($current_mark == $should_be_mark) && !$radius) {
         $logger->debug("is already properly enforced in firewall, no change required");
         return $TRUE;
     }
