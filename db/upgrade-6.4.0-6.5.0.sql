@@ -87,6 +87,8 @@ CREATE TABLE dhcpd (
 
 GRANT DROP ON pf.dhcpd TO 'pf'@'%';
 GRANT DROP ON pf.dhcpd TO 'pf'@'localhost';
+GRANT DROP ON pf.radippool TO 'pf'@'%';
+GRANT DROP ON pf.radippool 'pf'@'localhost';
 
 --
 -- Create trigger on radippool update

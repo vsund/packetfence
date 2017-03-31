@@ -61,6 +61,20 @@ sub assign {
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
+        $sql_query = "GRANT DROP ON $db.dhcpd TO ?\@${host} IDENTIFIED BY ?";
+        $dbHandler->do($sql_query, undef, $user, $password);
+        if ( $DBI::errstr ) {
+            $status_msg = "Error creating the user $user on database $db";
+            $logger->warn("$DBI::errstr");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+        $sql_query = "GRANT DROP ON $db.radippool TO ?\@${host} IDENTIFIED BY ?";
+        $dbHandler->do($sql_query, undef, $user, $password);
+        if ( $DBI::errstr ) {
+            $status_msg = "Error creating the user $user on database $db";
+            $logger->warn("$DBI::errstr");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
     }
     # Apply the new privileges
     $dbHandler->do("FLUSH PRIVILEGES");
