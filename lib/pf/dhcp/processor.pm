@@ -151,7 +151,7 @@ sub process_packet {
     my ( $self ) = @_;
 
     my $dhcp = $self->{dhcp};
-    $self->{'radius'} =$FALSE;
+    $dhcp->{'radius'} = $FALSE;
     $self->process_packet_dhcp($dhcp);
 }
 
@@ -321,7 +321,7 @@ sub parse_dhcp_request {
 
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
-    if( (defined($client_ip) && defined($client_mac)) && ( (!$self->pf_is_dhcp($client_ip) || $self->{'radius'}) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
+    if( (defined($client_ip) && defined($client_mac)) && ( $self->{'radius'} || (!$self->pf_is_dhcp($client_ip)  && !isenabled($Config{network}{force_listener_update_on_ack})) ) ){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length, $self->{'radius'});
     }
 
@@ -332,14 +332,45 @@ sub parse_dhcp_request {
     }
 
     if ($self->{is_inline_vlan} || is_type_inline($self->{'net_type'})) {
+        $self->handle_new_ip_from_radius($client_mac, $client_ip, $lease_length);
         $self->{accessControl} = new pf::inline::custom();
         $self->{api_client}->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE, $self->{inline_sub_connection_type});
-        $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
+        $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'},$self->{'radius'});
     }
     else {
         $logger->debug("Not acting on DHCPREQUEST");
     }
 }
+
+=head2 handle_new_ip_from_radius
+
+Make change only for radius dhcp
+
+=cut
+
+sub handle_new_ip_from_radius {
+    my $timer = pf::StatsD::Timer->new({level => 6});
+    my ( $self, $srcmac, $srcip, $lease_length ) = @_;
+    $logger->debug("$srcip && $srcmac");
+
+    # return if MAC or IP is not valid
+    if ( !valid_mac($srcmac) || !valid_ip($srcip) ) {
+        $logger->error("invalid MAC or IP: $srcmac $srcip");
+        return;
+    }
+
+    # we have to check directly in the DB since the OMAPI already contains the current lease info
+    my $oldip  = pf::iplog::_mac2ip_sql($srcmac);
+    my $oldmac = pf::iplog::_ip2mac_sql($srcip);
+    if ( $oldip && $oldip ne $srcip ) {
+        my $view_mac = node_view($srcmac);
+        my $last_connection_type = $view_mac->{'last_connection_type'};
+        if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE}) {
+            $self->{api_client}->notify('ipset_node_update',$oldip, $srcip, $srcmac);
+        }
+    }
+}
+
 
 
 =head2 parse_dhcp_ack
@@ -464,6 +495,7 @@ sub check_for_parking {
         get_logger->debug("Not checking parking for $client_mac since the node is registered");
         return;
     }
+
 
     my @locationlogs = locationlog_history_mac($client_mac);
     my $locationlog;

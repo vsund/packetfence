@@ -122,6 +122,10 @@ sub dhcpd_db_prepare {
             WHERE pool_name = ?
         ]);
 
+        $dhcpd_statements->{'freeradius_delete_radippool'} = $dbh->prepare(qq[
+            TRUNCATE radippool
+        ]);
+
         $dhcpd_db_prepared = 1;
     }
 }
@@ -165,6 +169,7 @@ sub freeradius_populate_dhcpd_config {
        close $fh;
     }
     open ($fh, "+>$install_dir/var/routes.bak");
+    db_query_execute(DHCPD, $dhcpd_statements, 'freeradius_delete_radippool');
 
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
@@ -183,6 +188,7 @@ sub freeradius_populate_dhcpd_config {
                 if ( $net{'dhcpd'} eq 'enabled' ) {
                     if (isenabled($net{'split_network'})) {
                         my @categories = nodecategory_view_all();
+                        push @categories, {'category_id' => '0', 'notes' => 'registration',  'max_nodes_per_pid' => '0', 'name' => 'registration'  };
                         my $count = @categories;
                         my $len = $current_network->masklen;
                         my $cidr = (ceil(log($count)/log(2)) + $len);
@@ -346,15 +352,16 @@ sub dhcprole {
     my $logger = get_logger();
     my $mac = $dhcp->{'chaddr'};
     my $node_info = node_attributes($mac);
-
-    my $pf = dhcpd_pool_view_by_name($node_info->{category}.$dhcp->{'options'}->{225}."pf");
+    my $category = $node_info->{category} || 'registration';
+    my $pf = dhcpd_pool_view_by_name($category.$dhcp->{'options'}->{225}."pf");
     my $current_network = NetAddr::IP->new( $pf->{'framedipaddress'} );
     my $radius_reply_ref = {
-        'control:Pool-Name' => $node_info->{category}.$dhcp->{'options'}->{225},
+        'control:Pool-Name' => $category.$dhcp->{'options'}->{225},
         'DHCP-Subnet-Mask' => $current_network->mask(),
         'DHCP-Router-Address' => $current_network->addr(),
         'DHCP-DHCP-Server-Identifier' => $current_network->addr(),
     };
+    $radius_reply_ref->{'DHCP-IP-Address-Lease-Time'} = 45 if ($category eq 'registration');
     my $status = $RADIUS::RLM_MODULE_OK;
     return [$status, %$radius_reply_ref];
 }
