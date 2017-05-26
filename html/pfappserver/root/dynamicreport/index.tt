@@ -61,7 +61,7 @@
                   <td>
                     <div id="searchConditionsEmpty" class="unwell unwell-horizontal">
                       <p>
-                        <i class="icon-search" style="line-height: 24px"></i>
+                        <i class="icon-search"></i>
                         <a href="#add">[% l('Add a condition.') %]</a>
                       </p>
                     </div>
